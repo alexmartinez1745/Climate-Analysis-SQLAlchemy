@@ -1,3 +1,4 @@
+# Importing Dependencies
 # Python SQL toolkit and Object Relational Mapper
 import numpy as np
 import datetime as dt
@@ -6,20 +7,23 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func, inspect
 
+# Import Flask
 from flask import Flask, jsonify
 
-# create engine to hawaii.sqlite
+# Create engine to hawaii.sqlite
 engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 
-# reflect an existing database into a new model
+# Reflect an existing database into a new model
 Base = automap_base()
-# reflect the tables
+
+# Reflect the tables
 Base.prepare(engine, reflect=True)
 
 # Save references to each table
 Station = Base.classes.station
 Measurement = Base.classes.measurement
 
+# Setup for Flask app
 app = Flask(__name__)
 
 # Flask routes
@@ -65,12 +69,14 @@ def stations():
      # Create session
     session = Session(engine)
 
-    # Query date and precipitation from Measurment key
+    # Query stations
     stations = session.query(Station.station).all()
     session.close()
 
     # Create list of stations
     station_names = list(np.ravel(stations))
+
+    # Return json list
     return jsonify(station_names)
 
 # Route for dates and temps for most active station
@@ -116,16 +122,26 @@ def activestation():
 # Route for start date
 @app.route("/api/v1.0/<start>")
 def start(start):
+    """Finding sum temps for a given start date"""
     # Create session
     session = Session(engine)
 
-    # Query date and precipitation from Measurment key
+    # Query sum temps from a given start date
     sum_temps = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
-        filter(Measurement.station >= start).all()
+        filter(Measurement.date >= start).all()
     session.close()
     
+    # Create a dictonary and append results to start_date list
+    start_date = []
+    for min, max, avg in sum_temps:
+        start_dict = {}
+        start_dict["Minimum"] = min
+        start_dict["Maximum"] = max
+        start_dict["Average"] = avg
+        start_date.append(start_dict)
 
-
+    # Return dictonary as json
+    return jsonify(start_date)
 
 
 if __name__ == "__main__":

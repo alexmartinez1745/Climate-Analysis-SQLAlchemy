@@ -143,6 +143,31 @@ def start(start):
     # Return dictonary as json
     return jsonify(start_date)
 
+# Route for start/end date
+@app.route("/api/v1.0/<start>/<end>")
+def start_end(start, end):
+    """Finding summary temps for a given start and end date"""
+    # Create session
+    session = Session(engine)
 
+    # Query summary temps for a given start and end date
+    summary_temps = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
+        filter(Measurement.date >= start).\
+        filter(Measurement.date <= end).all()
+    session.close()
+    
+    # Create a dictonary and append results to start_end_date list
+    start_end_date = []
+    for min, max, avg in summary_temps:
+        start_end_dict = {}
+        start_end_dict["Minimum"] = min
+        start_end_dict["Maximum"] = max
+        start_end_dict["Average"] = avg
+        start_end_date.append(start_end_dict)
+
+    # Return dictonary as json
+    return jsonify(start_end_date)
+
+# Define main behavior
 if __name__ == "__main__":
     app.run(debug=True)

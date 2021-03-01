@@ -33,11 +33,11 @@ def welcome():
     """List of all available routes"""
     return (
         f"Available Routes:<br/>"
-        f"/api/v1.0/precipitation<br/>"
-        f"/api/v1.0/stations<br/>"
-        f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/yyyy-mm-dd<br/>"
-        f"/api/v1.0/yyyy-mm-dd/yyyy-mm-dd"
+        f"Precipitaion by date: /api/v1.0/precipitation<br/>"
+        f"List of stations: /api/v1.0/stations<br/>"
+        f"Most active station temperatures within the last year: /api/v1.0/tobs<br/>"
+        f"Summary temperatures from a given start date: /api/v1.0/yyyy-mm-dd<br/>"
+        f"Summary temperatures between given start to end date: /api/v1.0/yyyy-mm-dd/yyyy-mm-dd"
     )
 
 # Route for precipitation by date

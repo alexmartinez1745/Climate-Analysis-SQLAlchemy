@@ -1,4 +1,5 @@
 # Python SQL toolkit and Object Relational Mapper
+import numpy as np
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
@@ -41,7 +42,7 @@ def precipitation():
     # Create session
     session = Session(engine)
 
-    # Query data and precipitation from Measurment key
+    # Query date and precipitation from Measurment key
     results = session.query(Measurement.date, Measurement.prcp).all()
     session.close()
 
@@ -55,6 +56,22 @@ def precipitation():
 
     # Return dictonary as json
     return jsonify(prcp_data)
+
+# Route for all stations
+@app.route("/api/v1.0/stations")
+def stations():
+    """Query for list of stations"""
+     # Create session
+    session = Session(engine)
+
+    # Query date and precipitation from Measurment key
+    stations = session.query(Station.station).all()
+    session.close()
+
+    # Create list of stations
+    station_names = list(np.ravel(stations))
+    return jsonify(station_names)
+
 
 
 if __name__ == "__main__":

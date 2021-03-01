@@ -33,6 +33,7 @@ def welcome():
     """List of all available routes"""
     return (
         f"Available Routes:<br/>"
+        f"-------------------------<br/>"
         f"Precipitaion by date: /api/v1.0/precipitation<br/>"
         f"List of stations: /api/v1.0/stations<br/>"
         f"Most active station temperatures within the last year: /api/v1.0/tobs<br/>"

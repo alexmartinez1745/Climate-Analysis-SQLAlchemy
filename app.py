@@ -1,5 +1,6 @@
 # Python SQL toolkit and Object Relational Mapper
 import numpy as np
+import datetime as dt
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
@@ -71,6 +72,48 @@ def stations():
     # Create list of stations
     station_names = list(np.ravel(stations))
     return jsonify(station_names)
+
+# Route for dates and temps for most active station
+@app.route("/api/v1.0/tobs")
+def activestation():
+    """Query for most acitve station within previous 12 months"""
+     # Create session
+    session = Session(engine)
+
+    # Query date and temp of most active station over the last 12 months
+    station_freq = session.query(Measurement.station, func.count(Measurement.station)).\
+    group_by(Measurement.station).order_by(func.count(Measurement.station).desc()).all()
+    max_obv = station_freq[0]
+    station_final_date = session.query(Measurement.date).filter(Measurement.station == max_obv[0]).\
+    order_by(Measurement.date.desc()).first()
+
+    # Convert date from string
+    station_final_date = dt.datetime.strptime(station_final_date[0],"%Y-%m-%d").date()
+
+    # Calculate the date one year from the last date of filtered data
+    station_oneyear = station_final_date - dt.timedelta(days=365)
+
+    # Create query for highest observation station temps over 12 months
+    station_data = session.query(Measurement.date, Measurement.tobs).\
+    filter(Measurement.station == max_obv[0]).\
+    filter(Measurement.date >= station_oneyear).\
+    order_by(Measurement.date.asc()).all()
+    
+    # Close session
+    session.close()
+
+    # Create dictonary and append results to temps and dates list
+    temps_and_dates = []
+    for date, tobs in station_data:
+        t_d_dict = {}
+        t_d_dict["date"] = date
+        t_d_dict["tobs"] = tobs
+        temps_and_dates.append(t_d_dict)
+        
+    # Return as json
+    return jsonify(temps_and_dates)
+
+
 
 
 

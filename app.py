@@ -32,8 +32,8 @@ def welcome():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end>"
+        f"/api/v1.0/yyyy-mm-dd<br/>"
+        f"/api/v1.0/yyyy-mm-dd/yyyy-mm-dd"
     )
 
 # Route for precipitation by date
@@ -82,10 +82,10 @@ def activestation():
 
     # Query date and temp of most active station over the last 12 months
     station_freq = session.query(Measurement.station, func.count(Measurement.station)).\
-    group_by(Measurement.station).order_by(func.count(Measurement.station).desc()).all()
+        group_by(Measurement.station).order_by(func.count(Measurement.station).desc()).all()
     max_obv = station_freq[0]
     station_final_date = session.query(Measurement.date).filter(Measurement.station == max_obv[0]).\
-    order_by(Measurement.date.desc()).first()
+        order_by(Measurement.date.desc()).first()
 
     # Convert date from string
     station_final_date = dt.datetime.strptime(station_final_date[0],"%Y-%m-%d").date()
@@ -95,9 +95,9 @@ def activestation():
 
     # Create query for highest observation station temps over 12 months
     station_data = session.query(Measurement.date, Measurement.tobs).\
-    filter(Measurement.station == max_obv[0]).\
-    filter(Measurement.date >= station_oneyear).\
-    order_by(Measurement.date.asc()).all()
+        filter(Measurement.station == max_obv[0]).\
+        filter(Measurement.date >= station_oneyear).\
+        order_by(Measurement.date.asc()).all()
     
     # Close session
     session.close()
@@ -109,10 +109,21 @@ def activestation():
         t_d_dict["date"] = date
         t_d_dict["tobs"] = tobs
         temps_and_dates.append(t_d_dict)
-        
+
     # Return as json
     return jsonify(temps_and_dates)
 
+# Route for start date
+@app.route("/api/v1.0/<start>")
+def start(start):
+    # Create session
+    session = Session(engine)
+
+    # Query date and precipitation from Measurment key
+    sum_temps = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
+        filter(Measurement.station >= start).all()
+    session.close()
+    
 
 
 

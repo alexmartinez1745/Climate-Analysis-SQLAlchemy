@@ -46,7 +46,7 @@ Incorparated the use of Python and SQLAlchemy to do basic climate analysis and d
 
   * Displayed a histogram with `bins=12`.
 
-    ![station-histogram](graph_images/station_temps-checkpoint.png)
+    ![station-histogram](graph_images/station_temps.png)
 
 * Closed out the running session.
 
